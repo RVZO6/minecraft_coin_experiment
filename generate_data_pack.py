@@ -228,6 +228,22 @@ def build_coin_pools(tier_name):
     return pools
 
 
+def generate_tier_files():
+    """Generate the distinct loot table files for each tier."""
+    print("Generating tier loot tables...")
+    base_dir = "data_pack/data/coin_pack/loot_table/tiers"
+    os.makedirs(base_dir, exist_ok=True)
+
+    for tier_name in TIERS:
+        pools = build_coin_pools(tier_name)
+        loot_table = {"type": "minecraft:chest", "pools": pools}
+
+        path = os.path.join(base_dir, f"{tier_name}.json")
+        with open(path, "w") as f:
+            json.dump(loot_table, f, indent=2)
+        print(f"  Generated {path}")
+
+
 def setup_environment():
     """Ensure vanilla data and output directories exist."""
     if not os.path.exists("vanilla"):
@@ -241,28 +257,28 @@ def setup_environment():
 
     # Create pack.mcmeta if missing
     mcmeta_path = "data_pack/pack.mcmeta"
-    if not os.path.exists(mcmeta_path):
-        print("Creating pack.mcmeta...")
-        os.makedirs("data_pack", exist_ok=True)
-        fmt = parse_pack_format(DATA_PACK_FORMAT)
-        with open(mcmeta_path, "w") as f:
-            json.dump(
-                {
-                    "pack": {
-                        "description": "Minecraft coin data pack.",
-                        "pack_format": fmt[0],
-                        "min_format": fmt,
-                        "max_format": fmt,
-                    }
-                },
-                f,
-                indent=4,
-            )
+    # Always recreate/update pack.mcmeta to ensure consistency
+    os.makedirs("data_pack", exist_ok=True)
+    fmt = parse_pack_format(DATA_PACK_FORMAT)
+    with open(mcmeta_path, "w") as f:
+        json.dump(
+            {
+                "pack": {
+                    "description": "Minecraft coin data pack.",
+                    "pack_format": fmt[0],
+                    "min_format": fmt,
+                    "max_format": fmt,
+                }
+            },
+            f,
+            indent=4,
+        )
 
 
 def generate_data_pack():
     """Main generation function."""
     setup_environment()
+    generate_tier_files()
 
     print(f"Processing {len(LOOT_TABLES)} loot tables...")
 
@@ -282,12 +298,21 @@ def generate_data_pack():
                 print(f"  Skipping {table_path}: Invalid JSON")
                 continue
 
-        # Build and append coin pools
-        pools = build_coin_pools(tier_name)
-        if pools:
-            if "pools" not in data:
-                data["pools"] = []
-            data["pools"].extend(pools)
+        # Inject a reference to the tier loot table
+        # We append a single pool that rolls the tier loot table once.
+        reference_pool = {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "name": f"coin_pack:tiers/{tier_name}",
+                }
+            ],
+        }
+
+        if "pools" not in data:
+            data["pools"] = []
+        data["pools"].append(reference_pool)
 
         # Write modified loot table
         dest_path = os.path.join(OUTPUT_DIR, f"{table_path}.json")

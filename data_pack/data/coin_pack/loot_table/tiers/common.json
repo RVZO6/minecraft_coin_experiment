@@ -3,6 +3,7 @@
   "pools": [
     {
       "rolls": 1,
+      "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
@@ -12,14 +13,16 @@
             {
               "function": "minecraft:set_name",
               "name": {
-                "text": "Coin",
-                "color": "gold",
+                "text": "Gold Coin",
                 "italic": false
               }
             },
             {
-              "function": "minecraft:set_custom_model_data",
-              "value": 1
+              "function": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "coin_pack:coin",
+                "minecraft:rarity": "uncommon"
+              }
             },
             {
               "function": "minecraft:set_count",

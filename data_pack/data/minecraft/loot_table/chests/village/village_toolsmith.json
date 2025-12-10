@@ -119,7 +119,7 @@
       "entries": [
         {
           "type": "minecraft:loot_table",
-          "name": "coin_pack:tiers/common"
+          "value": "coin_pack:tiers/common"
         }
       ]
     }

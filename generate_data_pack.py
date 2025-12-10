@@ -305,7 +305,7 @@ def generate_data_pack():
             "entries": [
                 {
                     "type": "minecraft:loot_table",
-                    "name": f"coin_pack:tiers/{tier_name}",
+                    "value": f"coin_pack:tiers/{tier_name}",
                 }
             ],
         }

@@ -39,7 +39,7 @@ COINS = {
     "enchanted_gold_coin": {
         "name": "Enchanted Gold Coin",
         "model": "coin_pack:coin",
-        "rarity": "epic",
+        "rarity": "rare",
         "glint": True,
     },
 }
